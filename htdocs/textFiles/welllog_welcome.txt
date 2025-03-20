@@ -1,0 +1,10 @@
+<p>
+  <b>Well log</b>: A graphic well log was derived from estimates of geologic units
+  and thicknesses at this specified location in the 3-D geologic framework model
+  developed for the Columbia Plateau regional aquifer system as part of a USGS
+  assessment of groundwater availability. The well log information is tabulated to
+  show values for tops and bottoms, elevations, and thicknesses of each of the geologic
+  unit in the accompanying table. Error estimates for these predicited
+  elevations are described by
+  <a href="https://www.usgs.gov/publications/three-dimensional-model-geologic-framework-columbia-plateau-regional-aquifer-system">Burns and others (2010)</a>.
+</p>

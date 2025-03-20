@@ -1,0 +1,8 @@
+  <p>
+  <b>Sections</b>: A graphic section along the line segment(s) between
+  locations will appear. The section is drawn from left to right in the order
+  locations were selected. To zoom, select a rectangle in either plot window
+  by using the left button of the mouse to drag an area. To reset, place the
+  cursor over the overview graphic above and double click the left button of
+  the mouse.
+  </p>
