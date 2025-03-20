@@ -1,0 +1,53 @@
+var myGeologicFramework = {
+    "title" : "Columbia Plateau Framework Model",
+    "version" : "3.07",
+    "version_date" : "March 19, 2025",
+    "study_boundary" : "gis/studyline.json",
+    "rasters"               : [ "tiffs/obtop.tif", "tiffs/smtop.tif", "tiffs/wntop.tif", "tiffs/grtop.tif", "tiffs/pmtop.tif"],
+    "latlong_projection"    : "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs",
+    "raster_projection"  : "+title=lcc +proj=lcc +lat_0=45.33333333333334 +lon_0=-120.5 +lat_1=47.33333333333334 +lat_2=45.83333333333334 +x_0=500000.0001016 +y_0=0 +ellps=GRS80 +datum=NAD83 +to_meter=0.3048006096012192 +no_defs",
+    "rasterL": ["obtop", "smtop", "wntop", "grtop", "pmtop"],
+    "explanation": {
+        "obtop" : {
+            "color" : "#FFFF82",
+            "symbol" : "201-K.svg",
+            "description" : "Overburden"
+        },
+        "smtop" : {
+            "color" : "#EBA8A8",
+            "symbol" : "717.svg",
+            "description" : "Saddle Mountains Basalt"
+        },
+        "wntop" : {
+            "color" : "#91C691",
+            "symbol" : "717.svg",
+            "description" : "Wanapum Basalt"
+        },
+        "grtop" : {
+            "color" : "#BE977B",
+            "symbol" : "717.svg",
+            "description" : "Grande Ronde Basalt"
+        },
+        "pmtop" : {
+            "color" : "#B6BEE9",
+            "symbol" : "430-K.svg",
+            "description" : "Older bedrock"
+        }
+    },
+    "horizontalDatum"  : "feet",
+    "verticalDatum"  : "NAVD1988",
+    "aboutFiles"    : {
+        "framework_welcome_txt"              : "textFiles/framework_welcome.txt",
+        "framework_general_instructions_txt" : "textFiles/framework_general_instructons.txt",
+        "framework_explanation_txt"          : "textFiles/framework_explanation.txt",
+        "framework_contacts_txt"             : "textFiles/framework_contacts.txt"
+    },
+    "wellLogFiles"    : {
+        "welllog_welcome_txt"                : "textFiles/welllog_welcome.txt",
+        "framework_contacts_txt"             : "textFiles/framework_contacts.txt"
+    },
+    "xsecFiles"    : {
+        "xsec_welcome_txt"                   : "textFiles/xsec_welcome.txt",
+        "framework_contacts_txt"             : "textFiles/framework_contacts.txt"
+    }
+}
