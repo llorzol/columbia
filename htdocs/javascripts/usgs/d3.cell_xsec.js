@@ -4,8 +4,8 @@
  * D3_Cell_Xsec is a JavaScript library to provide a set of functions to build
  *  cross-sectional view in svg format.
  *
- * version 2.10
- * March 18, 2025
+ * version 2.11
+ * March 20, 2025
 */
 
 /*
@@ -202,6 +202,10 @@ function plotCellXsec(myData) {
         myData,
         tooltip
     )
+    
+    // Legend
+    //
+    xsecLegend(svg)
 
     // Label axes
     //
@@ -449,137 +453,102 @@ function drawAreas(svgElement, data, areaClass, xScale, yScale, colorScale) {
     }
 }
 
-function addLegend(svgContainer, lithologyData, lithologyDefs)
-  { 
-   myLogger.info("addLegend");
+function xsecLegend(svgContainer) {
+    myLogger.info("xsecLegend");
 
-   var tempData     = lithologyDefs.slice();
-   myLogger.info(tempData);
-  
-   var x_legend     = x_box_max + 100
-   var y_legend     = y_box_min
-   var legend_box   = 20
-   var y_top        = y_box_min
+    // Set legend
+    //
+    let descriptions = svgContainer.append("g")
+        .attr("id", "xsec_descriptions")
+        .attr("class", "legend_descriptions")
 
-   var protocol     = window.location.protocol; // Returns protocol only
-   var host         = window.location.host;     // Returns host only
-   var pathname     = window.location.pathname; // Returns path only
-   var url          = window.location.href;     // Returns full URL
-   var origin       = window.location.origin;   // Returns base URL
-   var webPage      = (pathname.split('/'))[1];
+    // Set legend title
+    //
+    descriptions.append("rect")
+        .attr('id', 'xsecEntries')
+        .attr('x', x_legend)
+        .attr('y', y_top)
+        .attr('width', 1)
+        .attr('height', 1)
+        .attr('fill', 'none')
+        .attr('stroke', 'black')
+        .attr('stroke-width', 0);
+    descriptions.append("text")
+        .attr('x', x_legend)
+        .attr('y', y_top + legend_box * 0.75)
+        .style("text-anchor", "start")
+        .style("alignment-baseline", "center")
+        .style("font-family", "sans-serif")
+        .style("font-weight", "500")
+        .style("fill", 'black')
+        .text('Explanation');
 
-   myLogger.info("protocol " + protocol);
-   myLogger.info("host " + host);
-   myLogger.info("pathname " + pathname);
-   myLogger.info("url " + url);
-   myLogger.info("origin " + origin);
-   myLogger.info("webPage " + webPage);
+    // Loop through rasters
+    //
+    for (let i = 0; i < rasterL.length; i++) {
+        y_top += legend_box * 1.5
+        
+        let myUnit   = rasterL[i];
+        let Record   = explanation[myUnit];
 
-   var defs         = svgContainer.append("defs")
+        let id          = myUnit;
+        let description = Record.description
+        let symbol      = Record.symbol;
+        let color       = Record.color
 
-   // Loop through lithology
-   //
-   var Legend       = [];
-   var LegendList   = [];
-    
-   while ( tempData.length > 0 ) {
+        let myRect = descriptions.append("rect")
+            .attr('id', 'xsecEntries')
+            .attr('class', id)
+            .attr('x', x_legend)
+            .attr('y', y_top)
+            .attr('width', legend_box)
+            .attr('height', legend_box)
+            .attr('fill', color)
+            .attr('stroke', 'black')
+            .attr('stroke-width', 1)
+            .on('mouseover', function(d, i) {
+                let id = d3.select(this).attr('class');
+                d3.selectAll("#" + id)
+                    .transition()
+                    .duration(100)
+                    .attr('stroke-width', 4)
+                    .attr('stroke', 'yellow')
+            })
+            .on('mouseout', function(d, i) {
+                let id = d3.select(this).attr('class');
+                d3.selectAll("#" + id)
+                    .transition()
+                    .duration(100)
+                    .attr('stroke-width', 1)
+                    .attr('stroke', 'black')
+            })
 
-        var lithRecord  = tempData.shift();
-
-        var lithology   = lithRecord.lithology;
-        var symbol      = lithRecord.symbol;
-        var lithCode    = lithRecord.lithology.replace(/\s+&\s+/g, '');
-
-        // Build legend
-        //
-        if(LegendList.indexOf(lithology) < 0)
-          {
-           var id          = symbol
-           var svg_file    = symbol + ".svg"
-           //var link_http   = [protocol + '/', host, webPage, "lithology_patterns", svg_file].join("/");
-           var link_http   = ["lithology_patterns", svg_file].join("/");
-   
-           var pattern     = defs.append("pattern")
-                                 .attr('id', id)
-                                 .attr('patternUnits', 'userSpaceOnUse')
-                                 .attr('width', 100)
-                                 .attr('height', 100)
-   
-           var myimage     = pattern.append('image')
-                                 .attr('xlink:href', link_http)
-                                 .attr('width', 100)
-                                 .attr('height', 100)
-                                 .attr('x', 0)
-                                 .attr('y', 0)
-
-           LegendList.push(lithology);
-           Legend.push({ 
-                        'lithCode': lithCode,
-                        'symbol': symbol,
-                        'description': lithology,
-                        'image': id
-                       })
-
-           //lithologyDefs[lithology].pattern = id;
-          }
-   }
-
-   // Loop through lithology
-   //
-   var tempData     = Legend;
-  
-   var x_legend     = x_box_max + 100
-   var y_legend     = y_box_min
-   var legend_box   = 20
-   var y_top        = y_box_min
-
-   var descriptions = svgContainer.append("g")
-                                  .attr("class", "legend_descriptions")
-    
-    while ( tempData.length > 0 ) {
-
-        var Record      = tempData.shift();
-
-        var lithCode    = Record.lithCode;
-        var symbol      = Record.symbol;
-        var description = Record.description
-        var id          = Record.image
-        var url         = 'url(#' + id + ')'
-
-        var myRect      = descriptions.append("rect")
-                                      .attr('x', x_legend)
-                                      .attr('y', y_top)
-                                      .attr('width', legend_box)
-                                      .attr('height', legend_box)
-                                      .attr('fill', url)
-                                      .attr('stroke', 'black')
-                                      .attr('stroke-width', 1)
-
-        var myText      = descriptions.append("text")
-                                      .text(description)
-                                      .attr('class', lithCode)
-                                      .attr('x', x_legend + legend_box * 1.25)
-                                      .attr('y', y_top + legend_box * 0.5)
-                                      .on('mouseover', function(d, i) {
-                                         var lithClass = d3.select(this).attr('class');
-                                         d3.selectAll("#" + lithClass)
-                                           .transition()
-                                           .duration(100)
-                                           .attr('strokeWidth', 10)
-                                           .attr('stroke', 'yellow')
-                                      })
-                                      .on('mouseout', function(d, i) {
-                                         var lithClass = d3.select(this).attr('class');
-                                         d3.selectAll("#" + lithClass)
-                                           .transition()
-                                           .duration(100)
-                                           .attr('strokeWidth', 1)
-                                           .attr('stroke', 'black')
-                                      })
-
-        y_top          += legend_box * 1.5
-   }
-  
-   myLogger.info("done addLegend");
+        let myText = descriptions.append("text")
+            .style("text-anchor", "start")
+            .style("alignment-baseline", "center")
+            .style("font-family", "sans-serif")
+            .style("font-weight", "300")
+            .style("fill", 'black')
+            .text(description)
+            .attr('class', id)
+            .attr('x', x_legend + legend_box * 1.25)
+            .attr('y', y_top + legend_box * 0.75)
+            .on('mouseover', function(d, i) {
+                let id = d3.select(this).attr('class');
+                d3.selectAll("#" + id)
+                    .transition()
+                    .duration(100)
+                    .attr('stroke-width', 4)
+                    .attr('stroke', 'yellow')
+            })
+            .on('mouseout', function(d, i) {
+                let id = d3.select(this).attr('class');
+                d3.selectAll("#" + id)
+                    .transition()
+                    .duration(100)
+                    .attr('stroke-width', 1)
+                    .attr('stroke', 'black')
+            })
+    }
   }
 
