@@ -7,8 +7,8 @@
  * Special layout for MERAS project (addition line in explanation table for
  *  link to correlation web page CURRENTLY DISABLED).
  *
- * version 2.12
- * March 20, 2025
+ * version 2.13
+ * March 21, 2025
 */
 
 /*
@@ -312,9 +312,10 @@ function locationMap(latitude, longitude)
 
 function buildExplanation(cells) {
 
-    console.log('buildExplanation');
+    myLogger.info('buildExplanation');
+    myLogger.info('Cell log');
+    myLogger.info(cells);
 
-    let myRasters = myGeologicFramework.rasters;      
 
     // Build explanation
     //
@@ -337,8 +338,6 @@ function buildExplanation(cells) {
 
     // Set color specification array
     //
-    console.log(cells);
-
     let top = 0;
     for(i = 0; i < cells.length; i++) {
 
@@ -347,9 +346,9 @@ function buildExplanation(cells) {
         let unit        = cells[i].unit;
         let top_elev    = cells[i].top_elev;
         let bot_elev    = cells[i].bot_elev;
-        let symbol      = myRasters[unit].symbol;
-        let color       = myRasters[unit].color;
-        let description = myRasters[unit].description;
+        let symbol      = explanation[unit].symbol;
+        let color       = explanation[unit].color;
+        let description = explanation[unit].description;
         
         let top_depth   = cells[i].top_depth;
         let bot_depth   = cells[i].bot_depth;
