@@ -69,8 +69,8 @@ from urllib.parse import parse_qs
 # ------------------------------------------------------------
 
 program      = "USGS Raster Cross Section Script"
-version      = "3.13"
-version_date = "March 18, 2025"
+version      = "3.14"
+version_date = "March 23, 2025"
 usage_message = """
 Usage: framework_xsec.py
                 [--help]
@@ -482,13 +482,6 @@ for location in pointsL:
                 myTops[raster] = rasterValue
                 #screen_logger.info('\tRaster %s cell value %s' % (raster, str(rasterValue)))
 
-            # Loop to set bottoms
-            #
-            tempL = list(rasters)
-            while len(tempL):
-
-                raster = tempL.pop(0)
-
                 # Set rocks
                 #
                 if not raster in rocks:
@@ -498,6 +491,13 @@ for location in pointsL:
          
                 rocks[raster][dist]["top"] = None
                 rocks[raster][dist]["bot"] = None
+
+            # Loop to set bottoms
+            #
+            tempL = list(rasters)
+            while len(tempL):
+
+                raster = tempL.pop(0)
         
                 # Raster information
                 #
@@ -561,13 +561,6 @@ for location in pointsL:
                 myTops[raster] = rasterValue
                 #screen_logger.info('\tRaster %s cell value %s' % (raster, str(rasterValue)))
 
-            # Loop to set bottoms
-            #
-            tempL = list(rasters)
-            while len(tempL):
-
-                raster = tempL.pop(0)
-
                 # Set rocks
                 #
                 if not raster in rocks:
@@ -577,6 +570,13 @@ for location in pointsL:
          
                 rocks[raster][dist]["top"] = None
                 rocks[raster][dist]["bot"] = None
+
+            # Loop to set bottoms
+            #
+            tempL = list(rasters)
+            while len(tempL):
+
+                raster = tempL.pop(0)
         
                 # Raster information
                 #
