@@ -4,8 +4,8 @@
  * D3_Cell_Xsec is a JavaScript library to provide a set of functions to build
  *  cross-sectional view in svg format.
  *
- * version 2.12
- * March 23, 2025
+ * version 2.14
+ * March 24, 2025
 */
 
 /*
@@ -55,7 +55,6 @@ var x_axis      = x_box_max - x_box_min;
 var x_legend    = x_box_max + 100
 var y_legend    = y_box_min
 var legend_box  = 20
-var y_top       = y_box_min
 
 var y_zoom_min  = y_box_max + 50;
 var y_zoom_max  = y_zoom_min + 100;
@@ -326,6 +325,7 @@ function addFramework(
                 .attr("y2", height)
                 .attr("stroke-width", 2)
                 .attr("stroke", "red")
+            d3.selectAll(".rasterText").text('--')
             tracker(data, xScale.invert(x));
         })
         .on('mousemove', function(event) {
@@ -342,7 +342,7 @@ function addFramework(
         })
          .on('mouseleave', function(event) {
             d3.select("#cursor-tracker").attr('stroke-width',0)
-            d3.select(".rasterText").text('--')
+            d3.selectAll(".rasterText").text('--')
         })
     
     // Add overview hydrograph
@@ -524,6 +524,8 @@ function tracker(data, x0) {
 function xsecLegend(svgContainer) {
     myLogger.info("xsecLegend");
 
+    let y_top = y_box_min
+
     // Set legend
     //
     let descriptions = svgContainer.append("g")
@@ -533,7 +535,7 @@ function xsecLegend(svgContainer) {
     // Set legend title
     //
     descriptions.append("rect")
-        .attr('id', 'xsecEntries')
+        .attr('id', 'legendEntries')
         .attr('x', x_legend)
         .attr('y', y_top)
         .attr('width', 1)
@@ -547,9 +549,11 @@ function xsecLegend(svgContainer) {
         .attr("text-anchor", "start")
         .attr("alignment-baseline", "center")
         .attr("font-family", "sans-serif")
-        .attr("font-weight", "500")
+        .attr("font-weight", "700")
         .attr("fill", 'black')
-        .attr('Explanation');
+        .text('Explanation');
+    
+    y_top += legend_box * 0.5;
 
     // Loop through rasters
     //
@@ -564,13 +568,49 @@ function xsecLegend(svgContainer) {
         let symbol      = Record.symbol;
         let color       = Record.color
 
+        let legendWidth = Math.abs(x_legend + legend_box * 2.5 - svg_width);
+        myLogger.info(`legendWidth ${legendWidth}`);
+        let textWrap = `${id}`
+        myLogger.info(textWrap);       
+
+        let myText = descriptions.append("text")
+            .attr('class', id)
+            .attr('x', x_legend + legend_box * 2.5)
+            .attr('y', y_top)
+            .attr("dy", "1em")
+            .attr("text-anchor", "start")
+            .attr("alignment-baseline", "center")
+            .attr("font-family", "sans-serif")
+            .attr("font-weight", "300")
+            .attr("fill", 'black')
+            .text(description)
+            .call(wrap, legendWidth)
+            .on('mouseover', function(d, i) {
+                let id = d3.select(this).attr('class');
+                d3.selectAll("#" + id)
+                    .transition()
+                    .duration(100)
+                    .attr('stroke-width', 4)
+                    .attr('stroke', 'yellow')
+            })
+            .on('mouseout', function(d, i) {
+                let id = d3.select(this).attr('class');
+                d3.selectAll("#" + id)
+                    .transition()
+                    .duration(100)
+                    .attr('stroke-width', 1)
+                    .attr('stroke', 'black')
+            })
+        
+        let myTextBox = getSvg(`.${id}`)
+        let myTextHeight = myTextBox.height
+
         let myValue = descriptions.append("text")
             .attr('id', id)
             .attr('class', 'rasterText')
-            .attr('x', x_legend)
-            .attr('y', y_top + legend_box)
+            .attr("transform", d => `translate(${x_legend}, ${y_top + legend_box * 0.75})`)
             .attr("text-anchor", "end")
-            .attr("alignment-baseline", "center")
+            //.attr("alignment-baseline", "center")
             .attr("font-family", "sans-serif")
             .attr("font-weight", "300")
             .attr("font-size", "0.75rem")
@@ -580,8 +620,8 @@ function xsecLegend(svgContainer) {
         let myRect = descriptions.append("rect")
             .attr('id', 'xsecEntries')
             .attr('class', id)
-            .attr('x', x_legend + legend_box * 1.5)
-            .attr('y', y_top)
+            //.attr("transform", d => `translate(${x_legend + legend_box * 1.5}, ${y_top + myTextHeight * 0.5})`)
+            .attr("transform", d => `translate(${x_legend + legend_box * 0.75}, ${y_top})`)
             .attr('width', legend_box)
             .attr('height', legend_box)
             .attr('fill', color)
@@ -604,32 +644,8 @@ function xsecLegend(svgContainer) {
                     .attr('stroke', 'black')
             })
 
-        let myText = descriptions.append("text")
-            .attr('class', id)
-            .attr('x', x_legend + legend_box * 3)
-            .attr('y', y_top + legend_box * 0.75)
-            .attr("text-anchor", "start")
-            .attr("alignment-baseline", "center")
-            .attr("font-family", "sans-serif")
-            .attr("font-weight", "300")
-            .attr("fill", 'black')
-            .text(description)
-            .on('mouseover', function(d, i) {
-                let id = d3.select(this).attr('class');
-                d3.selectAll("#" + id)
-                    .transition()
-                    .duration(100)
-                    .attr('stroke-width', 4)
-                    .attr('stroke', 'yellow')
-            })
-            .on('mouseout', function(d, i) {
-                let id = d3.select(this).attr('class');
-                d3.selectAll("#" + id)
-                    .transition()
-                    .duration(100)
-                    .attr('stroke-width', 1)
-                    .attr('stroke', 'black')
-            })
+        //y_top += legend_box * 0.5 + myTextHeight
+        y_top += legend_box
     }
   }
 
