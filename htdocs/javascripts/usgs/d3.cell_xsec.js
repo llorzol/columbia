@@ -4,8 +4,8 @@
  * D3_Cell_Xsec is a JavaScript library to provide a set of functions to build
  *  cross-sectional view in svg format.
  *
- * version 2.11
- * March 20, 2025
+ * version 2.12
+ * March 23, 2025
 */
 
 /*
@@ -304,9 +304,46 @@ function addFramework(
         .attr("transform", `translate(${x_box_min}, ${y_box_min})`)
         .attr("clip-path", "url(#clip)")
 
-    // Draw areasa
+    // Draw areas
     //
     drawAreas(zoomPlot, data, 'zoomAreas', xScale, yScale, colorScale)
+    
+    // Tracker line
+    //
+    let trackerLine = zoomPlot.append("line")
+        .attr("id", "cursor-tracker")
+        .attr("stroke-width", 2)
+        .attr("stroke", "red")
+    
+    zoomPlot
+        .on('mouseenter', function(event) {
+            const [x, y] = d3.pointer(event, this);
+            myLogger.debug(`Tracking line ${x} ${y}`);
+            d3.select("#cursor-tracker")
+                .attr("x1", x)
+                .attr("y1", 0)
+                .attr("x2", x)
+                .attr("y2", height)
+                .attr("stroke-width", 2)
+                .attr("stroke", "red")
+            tracker(data, xScale.invert(x));
+        })
+        .on('mousemove', function(event) {
+            const [x, y] = d3.pointer(event, this);
+            myLogger.debug(`Tracking line ${x} ${y}`);
+            d3.select("#cursor-tracker")
+                .attr("x1", x)
+                .attr("y1", 0)
+                .attr("x2", x)
+                .attr("y2", height)
+                .attr("stroke-width", 2)
+                .attr("stroke", "red")
+            tracker(data, xScale.invert(x));
+        })
+         .on('mouseleave', function(event) {
+            d3.select("#cursor-tracker").attr('stroke-width',0)
+            d3.select(".rasterText").text('--')
+        })
     
     // Add overview hydrograph
     //
@@ -453,6 +490,37 @@ function drawAreas(svgElement, data, areaClass, xScale, yScale, colorScale) {
     }
 }
 
+function tracker(data, x0) {
+    myLogger.info("tracker");
+
+    let xValues = data[rasterL[0]].map(d => d.x); // [10, 50, 90]
+    let bisect  = d3.bisector(d => d).right;
+    let index   = bisect(xValues, x0);
+
+    // Determine index of closer value
+    //
+    let d0 = xValues[index - 1]
+    let d1 = xValues[index]
+    index  = x0 - d0.x > d1.x - x0 ? index : index - 1;
+    myLogger.info(`  Tracking ${index} ${x0} ${xValues[index]}`);
+    
+    // Loop through rasters
+    //
+    for (let i = 0; i < rasterL.length; i++) {
+        let myUnit  = rasterL[i];
+        let myData  = data[myUnit];
+        let myValue = myData[index].top;
+
+        // Clear
+        //
+        let topText = '--';
+        d3.select(`text#${myUnit}`).text(topText)
+        
+        if(myValue) { d3.select(`text#${myUnit}`).text(`${myValue.toFixed(0)}`) }
+        myLogger.info(`     Unit ${myUnit} Top ${topText} ${JSON.stringify(myData[index])}`);
+    }
+}
+
 function xsecLegend(svgContainer) {
     myLogger.info("xsecLegend");
 
@@ -476,12 +544,12 @@ function xsecLegend(svgContainer) {
     descriptions.append("text")
         .attr('x', x_legend)
         .attr('y', y_top + legend_box * 0.75)
-        .style("text-anchor", "start")
-        .style("alignment-baseline", "center")
-        .style("font-family", "sans-serif")
-        .style("font-weight", "500")
-        .style("fill", 'black')
-        .text('Explanation');
+        .attr("text-anchor", "start")
+        .attr("alignment-baseline", "center")
+        .attr("font-family", "sans-serif")
+        .attr("font-weight", "500")
+        .attr("fill", 'black')
+        .attr('Explanation');
 
     // Loop through rasters
     //
@@ -496,10 +564,23 @@ function xsecLegend(svgContainer) {
         let symbol      = Record.symbol;
         let color       = Record.color
 
+        let myValue = descriptions.append("text")
+            .attr('id', id)
+            .attr('class', 'rasterText')
+            .attr('x', x_legend)
+            .attr('y', y_top + legend_box)
+            .attr("text-anchor", "end")
+            .attr("alignment-baseline", "center")
+            .attr("font-family", "sans-serif")
+            .attr("font-weight", "300")
+            .attr("font-size", "0.75rem")
+            .attr("fill", 'black')
+            .text('--')
+
         let myRect = descriptions.append("rect")
             .attr('id', 'xsecEntries')
             .attr('class', id)
-            .attr('x', x_legend)
+            .attr('x', x_legend + legend_box * 1.5)
             .attr('y', y_top)
             .attr('width', legend_box)
             .attr('height', legend_box)
@@ -524,15 +605,15 @@ function xsecLegend(svgContainer) {
             })
 
         let myText = descriptions.append("text")
-            .style("text-anchor", "start")
-            .style("alignment-baseline", "center")
-            .style("font-family", "sans-serif")
-            .style("font-weight", "300")
-            .style("fill", 'black')
-            .text(description)
             .attr('class', id)
-            .attr('x', x_legend + legend_box * 1.25)
+            .attr('x', x_legend + legend_box * 3)
             .attr('y', y_top + legend_box * 0.75)
+            .attr("text-anchor", "start")
+            .attr("alignment-baseline", "center")
+            .attr("font-family", "sans-serif")
+            .attr("font-weight", "300")
+            .attr("fill", 'black')
+            .text(description)
             .on('mouseover', function(d, i) {
                 let id = d3.select(this).attr('class');
                 d3.selectAll("#" + id)
