@@ -1,8 +1,9 @@
 var myGeologicFramework = {
     "title" : "Columbia Plateau Framework Model",
-    "version" : "3.07",
-    "version_date" : "March 19, 2025",
-    "study_boundary" : "gis/studyline.json",
+    "version" : "3.10",
+    "version_date" : "April 3, 2026",
+    "study_boundary" : "gis/studyarea.geojson",
+    "surficalGeologyUrl" : "gis/maptiles/{z}/{x}/{y}.png",
     "rasters"               : [ "tiffs/obtop.tif", "tiffs/smtop.tif", "tiffs/wntop.tif", "tiffs/grtop.tif", "tiffs/pmtop.tif"],
     "latlong_projection"    : "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs",
     "raster_projection"  : "+title=lcc +proj=lcc +lat_0=45.33333333333334 +lon_0=-120.5 +lat_1=47.33333333333334 +lat_2=45.83333333333334 +x_0=500000.0001016 +y_0=0 +ellps=GRS80 +datum=NAD83 +to_meter=0.3048006096012192 +no_defs",
