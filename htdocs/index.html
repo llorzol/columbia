@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 
-<!-- version 1.10 -->
-<!-- version_date March 20, 2025 -->
+<!-- $Id: /var/www/html/columbia/index.html, v 1.11 2026/04/12 15:11:29 llorzol Exp $ -->
+<!-- $Revision: 1.11 $ -->
+<!-- $Date: 2026/04/12 15:11:29 $ -->
+<!-- $Author: llorzol $ -->
 
 <html lang="en">
   <head>
@@ -27,19 +29,19 @@
       <!-- Page Heading/Breadcrumbs -->
       <div class="row">
         <div class="col-sm-12">
-          <div class="clear title fs-2 mt-3 mb-3">U.S. Geological Survey</div>
-          <div class="clear title fs-2 mb-3">
-            <a class= "link-light link-underline-opacity-0" href="https://www.usgs.gov/centers/washington-water-science-center/science/columbia-plateau-groundwater-availability-study#overview">
-              <div class="clear title fs-2">A Three-Dimensional Hydrogeologic Framework Model of Columbia Plateau Regional Aquifer System</div>
+          <div class="fs-2 fw-bold text-black mt-2">U.S. Geological Survey</div>
+          <div class="mt-2">
+            <a class= "fs-2 fw-bold text-black link-underline-light" href="https://www.usgs.gov/centers/washington-water-science-center/science/columbia-plateau-groundwater-availability-study#overview">
+              <div>A Three-Dimensional Hydrogeologic Framework Model of Columbia Plateau Regional Aquifer System</div>
             </a>
           </div>
-          <div class="clear title fs-2 mb-3">Geologic Framework Mapper</div>
+          <div class="fs-4 fw-bold text-black mt-2">Geologic Framework Mapper</div>
         </div>
       </div>
       <!-- End Page Heading/Breadcrumbs -->
 
       <!-- Accordion -->
-      <div class="row mb-3">
+      <div class="row mt-2 mb-3">
         <div class="col-sm-12">
           <div class="accordion" id="accordionExample">
             <div class="accordion-item">
@@ -129,14 +131,17 @@
 
     <!-- Supporting scripts  -->
     <script src="javascripts/required/jquery.min.js"></script>
-    <script src="javascripts/required/popper.min.js"></script>
-    <script src="javascripts/required/tether.min.js"></script>
-    <script src="javascripts/required/bootstrap.min.js"></script>
+    <script src="javascripts/required/bootstrap.bundle.min.js"></script>
+
+    <!-- Leaflet / Map  -->
     <script src="javascripts/required/leaflet.js"></script>
-    <script src="javascripts/required/Control.MiniMap.min.js"></script>
+    <link rel="stylesheet" href="css/required/leaflet.css">
     
+    <!-- Opacity feature  -->
     <script src="javascripts/required/leaflet-transparency.js"></script>
-    <script src="javascripts/required/Control.Opacity.js"></script>
+    
+    <!-- Mini map feature  -->
+    <script src="javascripts/required/Control.MiniMap.min.js"></script>
 
     <!-- Home feature  -->
     <link rel="stylesheet" href="zoombar/L.Control.ZoomBar.css"/>
@@ -152,13 +157,30 @@
 
     <!-- For control buttons -->
     <script src="javascripts/required/easy-button.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/required/easy-button.css">
 
     <!-- Proj4 scripts -->
     <script src="javascripts/proj4js/dist/proj4.js"></script>
 
     <!-- log4js -->
     <script src="javascripts/required/loglevel.min.js"></script>
+    
+    <!-- Point in polygon -->
+    <script src="javascripts/required/leaflet-pip.js"></script>
 
+    <!-- Geotiff
+    <script src="https://unpkg.com/sql.js@0.3.2/js/sql.js"></script>
+    <script src="javascripts/required/Leaflet.TileLayer.MBTiles.js"></script>
+    -->
+    
+    <!-- Geotiff -->
+    <!-- <script src="javascripts/required/geotiff.js"></script> -->
+
+    <!-- GeoRasterLayer
+    <script src="javascripts/required/georaster.browser.bundle.min.js"></script>
+    <script src="javascripts/required/georaster-layer-for-leaflet.min.js"></script>
+    -->
+    
     <!-- Definitions for Framework -->
     <script src="data/framework_lookup.json"></script>
 
