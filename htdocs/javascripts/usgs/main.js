@@ -4,8 +4,10 @@
  * Main is a JavaScript library to provide a set of functions to manage
  *  the web requests.
  *
- * version 1.03
- * March 16, 2025
+ * $Id: /var/www/html/columbia/javascripts/usgs/main.js, v 1.05 2026/04/19 16:23:14 llorzol Exp $
+ * $Revision: 1.05 $
+ * $Date: 2026/04/19 16:23:14 $
+ * $Author: llorzol $
 */
 
 /*
@@ -43,8 +45,9 @@ let myLogger = log.getLogger('myLogger');
 //myLogger.setLevel('debug');
 myLogger.setLevel('info');
 
+// Prepare global variables 
+//
 processConfigFile(myGeologicFramework)
-myLogger.info(aboutFiles);
 
 // Prepare when the DOM is ready 
 //
@@ -57,7 +60,7 @@ $(document).ready(function() {
 
     // Build ajax requests
     //
-    var webRequests  = [];
+    let urls = [];
 
     // Insert accordion text
     //
@@ -65,89 +68,65 @@ $(document).ready(function() {
 
         // Request for accordion text information
         //
-        var request_type = "GET";
-        var script_http  = keyFile + "?_="+(new Date()).valueOf();
-        var data_http    = "";
-        var dataType     = "text";
+        //let Url = `${keyFile} + "?_="+(new Date()).valueOf()`
+        let Url = `${keyFile}`
 
         // Web request
         //
-        webRequests.push($.ajax( {
-            method:   request_type,
-            url:      script_http,
-            data:     data_http,
-            dataType: dataType,
-            success: function (myData) {
-                message = "Processed framework information";
-                openModal(message);
-                fadeModal(2000);
-                //myLogger.info(`Help text file ${keyFile} ${myData}`);
-
-                jQuery("#" + keyItem).html(myData);
-            },
-            error: function (error) {
-                message = `Failed to load framework information ${error}`;
-                openModal(message);
-                fadeModal(2000);
-                return false;
-            }
-        }));
+        urls.push(`${Url}`);
     });
 
-    // Request for framework information
+    // Call the async function
     //
-    var request_type = "GET";
-    var script_http  = study_boundary;
-    var data_http    = "";
-    var dataType     = "json";
+    webRequests(urls, 'text', processAboutFiles)
+});
+
+// Process about files information
+//
+function processAboutFiles(myInfo) {
+    myLogger.info("processAboutFiles");
+    //myLogger.info(myInfo);
+    
+    jQuery.each(aboutFiles, function(keyItem, keyFile) {
+        jQuery("#" + keyItem).html(myInfo.shift());
+    });
+
+    // Build ajax requests
+    //
+    let urls = [];
 
     // Web request
     //
-    webRequests.push($.ajax( {
-        method:   request_type,
-        url:      script_http,
-        data:     data_http,
-        dataType: dataType,
-        success: function (myData) {
-            message = "Processed study boundary information";
-            openModal(message);
-            fadeModal(2000);
-            StudyBoundary = myData;
-        },
-        error: function (error) {
-            message = `Failed to load study boundary information ${error}`;
-            openModal(message);
-            fadeModal(2000);
-            return false;
-        }
-    }));
+    if(study_boundary) {
+        urls.push(`${study_boundary}`);
 
-    // Run ajax requests
+        // Call the async function
+        //
+        webRequests(urls, 'json', processStudyBoundary)
+    }
+}
+
+// Process study boundary information
+//
+function processStudyBoundary(myData) {
+    myLogger.info("processStudyBoundary");
+
+    StudyBoundary = myData[0]
+
+    // Build map
     //
-    $.when.apply($, webRequests).then(function() {
-
-        fadeModal(2000);
-
-        buildMap();
-    });
-});
+    buildMap ()
+}
 
 // Process project configuration information
 //
-function processConfigFile(myInfo) 
-  {        
-   myLogger.info("Processing project configuration information");
-   myLogger.info(myInfo);
+function processConfigFile(myInfo) {
+    myLogger.info("Processing project configuration information");
+    myLogger.debug(myInfo);
+    for (let key in myInfo) {
+        globalThis[key] = myInfo[key]
+    }
 
-   aboutFiles         = myInfo.aboutFiles;
-   rasters            = myInfo.rasters;
-   latlong_projection = myInfo.latlong_projection;
-   raster_projection  = myInfo.raster_projection;
-   explanation        = myInfo.explanation;
-   color_file         = myInfo.color_file;
-   study_boundary     = myInfo.study_boundary;
-   //myLogger.info(aboutFiles);
-
-   return;
+    return;
 
   }
