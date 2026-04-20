@@ -4,8 +4,10 @@
  * Framework_Map is a JavaScript library to provide a set of functions to build
  *  a Framework Web Site.
  *
- * version 2.15
- * March 16, 2025
+ * $Id: /var/www/html/columbia/javascripts/usgs/framework_map.js, v 2.17 2026/04/19 16:22:32 llorzol Exp $
+ * $Revision: 2.17 $
+ * $Date: 2026/04/19 16:22:32 $
+ * $Author: llorzol $
 */
 
 /*
@@ -34,9 +36,12 @@
 
 var markerLayer;
 var profileLayer;
+var boundaryLayer;
+var StudyBoundary
 var longlats           = [];
 
 var myZoomFlag         = false;
+var maxZoomLevel       = 16;
 
 var sliderValue        = 50;
         
@@ -53,6 +58,7 @@ function buildMap () {
     message = "Processing framework information ";
     openModal(message);
 
+    fadeModal(2000);
     closeModal();
 
     myLogger.info("Building map");
@@ -60,69 +66,52 @@ function buildMap () {
     jQuery("#lat").attr("placeholder", "Latitude").val("");
     jQuery("#long").attr("placeholder", "Longitude").val("");
 
-    // Set bounds based upon framework information
-    //
-    //map_bounds = setBounds(myInfo);
-
     // Create the map object
     //
     map = new L.map('map', { scrollWheelZoom: false, zoomControl: false});
 
-    // Add study boundary
+    // Create map pane for cell log markers and cross-section lines
     //
-    myLogger.info('Add study boundary');
-    myLogger.info(StudyBoundary);
-    var boundaryLayer = L.geoJson(StudyBoundary, {
-         onEachFeature: function(feature, featureLayer) {
-             let polygonCoordinates = feature.geometry.coordinates[0];
-             myLogger.info("polygonCoordinates length " + polygonCoordinates.length);
-             for(let i = 0; i < polygonCoordinates.length; i++) {
-                 studyAreaCoordinates.push({ x: polygonCoordinates[i][0],
-                                  y: polygonCoordinates[i][1]});
-             }
-         },
-
-        style: function (feature) {
-            return { color: "#f00", weight: 2, opacity: 1, fillOpacity: 1.0 };
-        }
-    });
-
-    myLogger.info("Building boundaryLayer");
-
-    // Set the bounds
-    //
-    map.fitBounds(boundaryLayer.getBounds());
-
-    boundaryLayer.addTo(map).bringToFront();
-
-    // Add base map
-    //
-    map.addLayer(ESRItopoBasemap);
-
-    // Create the miniMap
-    //
-    miniMap = new L.Control.MiniMap(ESRItopoMinimap, { toggleDisplay: true }).addTo(map);
-
-    var imageUrl = 'gis/surficalgeology.png';
-    var imageTxt = 'For Surface Geology see<a href="https://www.usgs.gov/publications/three-dimensional-model-geologic-framework-columbia-plateau-regional-aquifer-system">Burns and others (2010)</a>';
-
-    var imageBounds  = [
-        [44.2610754000000028, -121.8449585989999946],
-        [48.4194276019999990, -115.3673880150000031]
-    ];
-
-    // Surfical Geology overlay
-    //
-    var surficalGeology = L.imageOverlay(imageUrl,
-                                         imageBounds,
-                                         {opacity: 0.5, alt: imageTxt}
-                                        ).addTo(map);
-
-
+    dummyPane = map.createPane('markerAndSections');
+    map.getPane('markerAndSections').style.zIndex = 620;
+    
     // Add markerLayer and cross-section line
     //
     markerLayer  = new L.LayerGroup();
     profileLayer = new L.LayerGroup();
+
+    // Create map pane for study boundary
+    //
+    dummyPane = map.createPane('studyBoundary');
+    map.getPane('studyBoundary').style.pointerEvents = 'none';
+    map.getPane('studyBoundary').style.zIndex = 600;
+
+    boundaryLayer = L.geoJson(StudyBoundary, {
+        pane: 'studyBoundary',
+        style: { color: "#f00", weight: 2, opacity: 0.7, fillOpacity: 0.0 }
+    });
+
+    // Set the bounds
+    //
+    map.fitBounds(boundaryLayer.getBounds());
+    myLogger.info(boundaryLayer.getBounds());
+
+    boundaryLayer.addTo(map).bringToFront();
+
+    // Surfical Geology overlay
+    //
+    dummyPane = map.createPane('surficalGeology');
+    map.getPane('surficalGeology').style.pointerEvents = 'none';
+    map.getPane('surficalGeology').style.zIndex = 610;
+    
+    //let surficalGeologyUrl = 'gis/maptiles/{z}/{x}/{y}.png'
+    var surficalGeology = L.tileLayer(surficalGeologyUrl, {
+        pane: 'surficalGeology',
+        tms: true,
+        attribution: 'USGS',
+        opacity: `${sliderValue / 100}`,
+        alt: 'surfical geology'
+    }).addTo(map);
 
     // Set initial opacity to 0.5 (Optional)
     //
@@ -141,6 +130,33 @@ function buildMap () {
     controlGeologyOpacity.addTo(map);
     $('.opacity-control').prop('title','Move to change opacity of the surface geology on map');
     $('.opacity-control').prepend('<span>Surface Geology</span>');
+    $('.opacity-control').on('click', function(evt) {
+        console.log('controlGeologyOpacity')
+        console.log(controlGeologyOpacity.opacity)
+        opacity = controlGeologyOpacity.opacity
+        surficalGeology.setOpacity(opacity);
+    });
+    
+    // Add base map
+    //
+    map.addLayer(USGSTopoBasemap);
+
+    // Add the control for background base maps
+    //
+    let baseMaps = {};
+    let overlayMaps = {};
+    for(let i = 0; i < basemapNameArray.length; i++) {
+        baseMaps[basemapNameArray[i][1]] = basemapObj[basemapNameArray[i][0]]
+    }
+    let layerControl = L.control.layers(baseMaps, overlayMaps).addTo(map);
+
+    // Add mini map
+    //
+    let miniMaps = {};
+    for(let i = 0; i < MinimapNameArray.length; i++) {
+        miniMaps[MinimapNameArray[i][1]] = minimapObj[MinimapNameArray[i][0]]
+    }
+    let miniMap = new L.Control.MiniMap(USGSTopoMinimap, { toggleDisplay: true }).addTo(map)
 
     // Add home button
     //
@@ -190,7 +206,13 @@ function buildMap () {
             }
         }]
     }).addTo(map);
-    $('#xsecTool').addClass('xsecTool');
+    $('#xsecTool').css({
+        "width": "30px",
+        "height": "30px",
+        "object-fit": "scale-down",
+        "background-image": "url(css/usgs/images/xsec.png)",
+        "background-size": "contain"
+    });
 
     // Map bounds for geocoding tool
     //
@@ -221,58 +243,7 @@ function buildMap () {
             var myAddress = { latlng: { lng: data.location.x,  lat: data.location.y } };
         }
     });
-
-    // Base maps button from baseMaps.js
-    //
-    var basemapControl = L.control({position: 'topright'});
-    basemapControl.onAdd = function (map) {
-        var div = L.DomUtil.create('div', 'baseMaps NoJump');
-        div.innerHTML = baseMapContent.join(" ");
-        div.firstChild.onmousedown = div.firstChild.ondblclick = L.DomEvent.stopPropagation;
-        return div;
-    };
-    basemapControl.addTo(map);
-    $('.baseMaps').prop('title','Click to change background on map');
-
-    // Set current basemap active in dropdown menu
-    //
-    jQuery('#ESRItopoBasemap').addClass('active');
-
-    // Clicked base map
-    //
-    $(".baseMaps").on("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-
-        // Clicked base map
-        //
-        jQuery('#basemapMenu li').click(function() {
-            // Dont do anything if the current active layer is clicked
-            //
-            if(!map.hasLayer(window[$(this).prop("id")])) {
-                // Remove currently active basemap
-                //
-                jQuery("#basemapMenu li.active").each(function () {
-                    console.log("removing ",$(this).prop("id"));
-
-                    map.removeLayer(window[$(this).prop("id")]);
-                    jQuery(this).removeClass("active");
-                });
-
-                // Make new selection active and add to map
-                //
-                console.log("Active ",$(this).prop("id"));
-                jQuery(this).addClass('active');
-                map.addLayer(window[$(this).prop("id")]);
-                miniMap.changeLayer(minimapObj[$(this).prop("id")]);
-            }
-
-            // Close after clicked
-            //
-            $("#basemapButton").dropdown("toggle");
-        });
-    });
-
+    
     // Zoom message
     //
     $("#map").on("mouseover", function () {
@@ -286,20 +257,21 @@ function buildMap () {
 
     // Show initial map zoom level
     //
-    jQuery(".mapZoom" ).html( "<b>Zoom Level: </b>" + map.getZoom());
+    //jQuery(".mapZoom" ).html( "<b>Zoom Level: </b>" + map.getZoom());
 
     // Refresh on extent change
     //
     map.on('zoomend dragend', function(evt) {
         var mapZoomLevel =  map.getZoom();
-        if(mapZoomLevel > 12) {
+        if(mapZoomLevel > maxZoomLevel) {
             surficalGeology.setOpacity(0.0);
         }
         else
         {
-            surficalGeology.setOpacity(sliderValue);
+            surficalGeology.setOpacity(controlGeologyOpacity.opacity);
         }
-        jQuery( ".mapZoom" ).html( "<b>Zoom Level: </b>" + map.getZoom());
+        myLogger.info(`Zoom level ${map.getZoom()}`)
+        //jQuery( ".mapZoom" ).html( "<b>Zoom Level: </b>" + map.getZoom());
         //jQuery( ".latlng" ).html(evt.latlng.lng.toFixed(3) + ", " + evt.latlng.lat.toFixed(3));
     });
 
@@ -309,9 +281,22 @@ function buildMap () {
 	jQuery( ".latlng" ).html(evt.latlng.lng.toFixed(3) + ", " + evt.latlng.lat.toFixed(3));
     });
 
+    // Show zoom to area tool
+    //
+    jQuery('.leaflet-control-zoom-to-area').on('click', function(evt) {
+        console.log('zoom-to-area')
+        console.log(evt)
+    });
+
     // Enable cell log on click
     //
     map.on('click', function(evt) {
+        jQuery('.leaflet-control-zoom-to-area').on('zoomend dragend', function(evt) {
+            console.log('zoom-to-area')
+            console.log(evt)
+        });
+        myLogger.info("Clicked");
+        myLogger.info(`Zoom level ${map.getZoom()}`)
         onMapClick(markerLayer, evt);
     });
 }
@@ -393,7 +378,7 @@ function userCoords()
 
     // Point inside model grid
     //
-    if(isPointInPoly(studyAreaCoordinates, {x: long, y: lat}) > 0)
+      if(isPointInPoly(boundaryLayer, [long, lat]))
       {                                              
         // Place marker on map
         //
@@ -450,13 +435,14 @@ function onMapClick(markerLayer, evt)
   
       // Point inside raster grid
       //
-      if(isPointInPoly(studyAreaCoordinates, {x: long, y: lat}) > 0)
+      if(isPointInPoly(boundaryLayer, [long, lat]))
         {                                              
           // Place marker on map
           //
           marker = L.circle([lat, long], 
                             2, 
                             {
+                             pane: 'markerAndSections',
                              color: 'red',
                              fillColor: '#f03',
                              zIndexOffset: 999,
@@ -572,7 +558,8 @@ function buildXsec(markerLayer, profileLayer)
             }};
 
    var profile = L.geoJson(geojsonFeature, 
-                            {
+                           {
+                               pane : 'markerAndSections',
                               style: {
                                       color: "red",
                                       weight: 4
@@ -617,35 +604,8 @@ function resetCrossSection(markerLayer, profileLayer)
  
 // Determine if a point is within Model grid
 //
-function isPointInPoly(poly, pt){
-	for(var c = false, i = -1, l = poly.length, j = l - 1; ++i < l; j = i)
-		((poly[i].y <= pt.y && pt.y < poly[j].y) || (poly[j].y <= pt.y && pt.y < poly[i].y))
-		&& (pt.x < (poly[j].x - poly[i].x) * (pt.y - poly[i].y) / (poly[j].y - poly[i].y) + poly[i].x)
-		&& (c = !c);
-	return c;
-}
-
-
-//      var surficalGeology = new L.tileLayer('geol_tiles/{z}/{x}/{y}.png', {
-//          attribution: 'Map data &copy; ???',
-//  }).addTo(map).bringToFront();
-      
-  // Add surficalGeology to base map
-  //
-function addShapeFile(poly, pt) {
-    var geo = L.geoJson({ features: [] }, {
-	onEachFeature: function popUp(f, l) {
-	    var out = [];
-	    if (f.properties) {
-		for (var key in f.properties) {
-		    out.push(key + ": " + f.properties[key]);
-		}
-		l.bindPopup(out.join("<br />"));
-	    }
-	}
-    }).addTo(map);
-    var base = 'gis/crbg.zip';
-    shp(base).then(function (data) {
-	geo.addData(data);
-    });
+function isPointInPoly(poly, pt) {
+    
+    if(leafletPip.pointInLayer(pt, poly).length > 0) return true;
+    else return false;
 }
