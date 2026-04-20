@@ -3,8 +3,10 @@
  *
  * WebRequest is a JavaScript library to make a Ajax request.
  *
- * version 1.09
- * November 15, 2016
+ * $Id: /var/www/html/columbia/javascripts/usgs/webRequest.js, v 1.11 2026/04/19 16:24:27 llorzol Exp $
+ * $Revision: 1.11 $
+ * $Date: 2026/04/19 16:24:27 $
+ * $Author: llorzol $
 */
 
 /*
@@ -30,6 +32,50 @@
 # DEALINGS IN THE SOFTWARE.
 ###############################################################################
 */
+
+async function webRequests(urls, responseType, callBack) {
+    // Create an array of Promises
+    //
+    const fetchPromises = urls.map(url => fetch(url));
+
+    try {
+        // Wait for all promises to resolve
+        //
+        const responses = await Promise.all(fetchPromises);
+
+        // Map over the responses to parse them as JSON (each is an async operation)
+        //
+        const myPromises = responses.map(response => {
+            if (!response.ok) {
+                // You must handle non-ok statuses here
+                throw new Error(`HTTP error! status: ${response.status} for ${response.url}`);
+            }
+            if (responseType == 'json') return response.json();
+            else if (responseType == 'text') return response.text();
+            else if (responseType == 'image') return response.arrayBuffer();
+            else if (responseType == 'blob') return response.blob();
+            else if (responseType == 'bytes') return response.bytes();
+            else return response.text();
+        });
+
+        // Wait for all JSON parsing promises to resolve
+        //
+        const dataArray = await Promise.all(myPromises);
+        //console.log("All concurrent fetches complete:", dataArray);
+        //return dataArray;
+        callBack(dataArray)
+
+    } catch (error) {
+        let message = `An error occurred during concurrent fetches: ${error}`
+        console.error(message)
+        updateModal(message);
+        fadeModal(6000);
+    }
+}
+
+
+
+
 
 function webRequest(request_type, script_http, data_http, dataType, callFunction)
   {
