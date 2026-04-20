@@ -4,8 +4,10 @@
 * helpTips is a JavaScript library to set of functions to build
 *  a popup for the helpful information.
 *
- * version 1.03
- * May 15, 2017
+ * $Id: /var/www/html/columbia/javascripts/usgs/helpTips.js, v 1.05 2026/04/19 20:15:58 llorzol Exp $
+ * $Revision: 1.05 $
+ * $Date: 2026/04/19 20:15:58 $
+ * $Author: llorzol $
 */
 
 /*
