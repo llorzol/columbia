@@ -1,6 +1,8 @@
 <!DOCTYPE html>
-<!-- version 1.00 -->
-<!-- version_date February 24, 2025 -->
+<!-- $Id: /var/www/html/columbia/framework_xsec.html, v 1.02 2026/04/16 14:01:02 llorzol Exp $ -->
+<!-- $Revision: 1.02 $ -->
+<!-- $Date: 2026/04/16 14:01:02 $ -->
+<!-- $Author: llorzol $ -->
 <html lang="en">
   <head>
     <title></title>
@@ -12,17 +14,6 @@
     <!--#include virtual="DrupalVisID/includes/meta-css.html" -->
     <!--#include virtual="includes/css_inc.html" -->
     <!-- end css -->
-
-    <!-- Local styles -->
-    <link rel="stylesheet" type="text/css" href="css/usgs/framework.css">
-    <link rel="stylesheet" type="text/css" href="css/usgs/framework_tables.css">
-
-    <link rel="stylesheet" type="text/css" href="css/usgs/modal.css">
-    <link rel="stylesheet" type="text/css" href="css/usgs/usgs.css" />
-
-    <link rel="stylesheet" type="text/css" href="css/usgs/map.css">
-    <link rel="stylesheet" type="text/css" href="css/usgs/framework_flot.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Merriweather">
 
   </head>
 
@@ -36,19 +27,19 @@
       <!-- Page Heading/Breadcrumbs -->
       <div class="row">
         <div class="col-sm-12">
-          <div class="fw-bold text-black fs-2 mt-2">U.S. Geological Survey</div>
-          <div class="fw-bold text-black fs-2 mt-2">
-            <a class= "fw-bold text-black fs-2 link-underline-light" href="https://www.usgs.gov/centers/washington-water-science-center/science/columbia-plateau-groundwater-availability-study#overview">
+          <div class="fs-2 fw-bold text-black mt-2">U.S. Geological Survey</div>
+          <div class="mt-2">
+            <a class= "fs-2 fw-bold text-black link-underline-light" href="https://www.usgs.gov/centers/washington-water-science-center/science/columbia-plateau-groundwater-availability-study#overview">
               <div>A Three-Dimensional Hydrogeologic Framework Model of Columbia Plateau Regional Aquifer System</div>
             </a>
           </div>
-          <div class="fw-bold text-black fs-2 mt-2 mb-3">Geologic Framework Mapper</div>
+          <div class="fs-4 fw-bold text-black mt-2">Geologic Framework Mapper</div>
         </div>
       </div>
       <!-- End Page Heading/Breadcrumbs -->
 
       <!-- Accordion -->
-      <div class="row mb-3">
+      <div class="row mt-2 mb-3">
         <div class="col-sm-12">
           <div class="accordion" id="accordionExample">
             <div class="accordion-item">
@@ -81,11 +72,11 @@
       </div>
 
       <!-- Nav Bar Container-->
-      <div class="row spacemetop mb-3">
+      <div class="row mb-3">
         <div class="col-sm-12">
           <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
             <div class="container-fluid">
-              <a class="navbar-brand" href="https://www.usgs.gov"><img class="xsecLogo" src="css/usgs/images/xsec.png"></a>
+              <a class="navbar-brand" href="https://www.usgs.gov"><img class="xsecLogo" src="css/usgs/images/xsec.png" style="width: 30px; height: 30px; object-fit: scale-down;"></a>
               <div class="navbar-brand me-auto"><span id="page_title"></span></div>
             </div>
           </nav>
@@ -93,20 +84,32 @@
       </div>
 
       <!-- Cell Profile Container-->
-      <div class="row mb-3">
-        <div id="crossSection" class="col-sm-12 mt-3 ps-1 py-1"></div>
+      <div class="row">
+        <div id="crossSection" class="col-sm-12 ps-1 py-1"></div>
       </div>
 
       <div class="row mb-3">
         <div class="col-sm-12">
-          <p class="flot_instructions"><span style="text-align=right;">Vertical scale greatly exaggerated</span></p>
-          <p class="flot_instructions">
-            To zoom, select a rectangle in either the zoom plot or the overview plot by using the
-            left button of the mouse to slowly drag an area.
-          </p>
-          <p class="flot_instructions">
-            To reset, place the cursor over the overview plot above and double click the left button of the mouse.
-            More information is provided in the Welcome and General Instruction portions along the left panel.
+          <p class="text-start">Vertical scale greatly exaggerated</p>
+          <p class="text-start">
+            <b>Sections</b>: A graphic section along the line segment(s) between
+            locations will appear. The section is drawn from left to right in the order
+            locations were selected.
+            <ul>
+              <li>
+                To zoom, select a rectangle in the smaller
+                overview graphic by using the left button of the mouse to slowly drag an area.
+              </li>
+              <li>
+                To reset, place the cursor over the smaller overview graphic and double click the left button of
+                the mouse.
+              </li>
+              <li>
+                To reactivate the red tracker line, place the
+                cursor over the larger graphic and single click the left button of
+                the mouse.
+              </li>
+            </ul>
           </p>
         </div>
       </div>
@@ -120,9 +123,7 @@
 
       <!-- Supporting scripts  -->
       <script src="javascripts/required/jquery.min.js"></script>
-      <script src="javascripts/required/popper.min.js"></script>
-      <script src="javascripts/required/tether.min.js"></script>
-      <script src="javascripts/required/bootstrap.min.js"></script>
+      <script src="javascripts/required/bootstrap.bundle.min.js"></script>
       <script src="javascripts/required/jquery.url.js"></script>
       <script src="javascripts/required/leaflet.js"></script>
 
@@ -140,9 +141,7 @@
     <!-- Oregon WSC routines -->
     <script type="text/javascript" src="javascripts/usgs/webRequest.js"></script>
       <script type="text/javascript" src="javascripts/usgs/modal.js"></script>
-      <script type="text/javascript" src="javascripts/usgs/map_content.js"></script>
       <script type="text/javascript" src="javascripts/usgs/d3.cell_xsec.js"></script>
-      <script type="text/javascript" src="javascripts/usgs/framework_tools.js"></script>
       <script type="text/javascript" src="javascripts/usgs/framework_xsec.js"></script>
 
   </body>
