@@ -46,11 +46,23 @@ let myLogger = log.getLogger('myLogger');
 //myLogger.setLevel('debug');
 myLogger.setLevel('info');
 
-var rasters      = myGeologicFramework.rasters;
-var aboutFiles   = myGeologicFramework.wellLogFiles;
-var color_file   = myGeologicFramework.color_file;
-var explanation  = myGeologicFramework.explanation;
-var rasterList   = myGeologicFramework.rasterL;
+// Prepare global variables 
+//
+processConfigFile(myGeologicFramework)
+
+// Process project configuration information
+//
+function processConfigFile(myInfo) {
+    myLogger.info("Processing project configuration information");
+    myLogger.debug(myInfo);
+    for (let key in myInfo) {
+        globalThis[key] = myInfo[key]
+    }
+    myLogger.info(wellLogFiles);
+
+    return;
+
+  }
 
 var longitude;
 var latitude;
@@ -75,56 +87,42 @@ $(document).ready(function() {
 
     // Build ajax requests
     //
-    var webRequests  = [];
+    let urls = [];
 
     // Insert accordion text
     //
-    jQuery.each(aboutFiles, function(keyItem, keyFile) {
+    jQuery.each(wellLogFiles, function(keyItem, keyFile) {
 
         // Request for accordion text information
         //
-        var request_type = "GET";
-        var script_http  = keyFile + "?_="+(new Date()).valueOf();
-        var data_http    = "";
-        var dataType     = "text";
+        //let Url = `${keyFile} + "?_="+(new Date()).valueOf()`
+        let url = `${keyFile}`
 
         // Web request
         //
-        webRequests.push($.ajax( {
-            method:   request_type,
-            url:      script_http,
-            data:     data_http,
-            dataType: dataType,
-            success: function (myData) {
-                message = "Processed framework information";
-                openModal(message);
-                fadeModal(2000);
-                //myLogger.info(`Help text file ${keyFile} ${myData}`);
-
-                jQuery("#" + keyItem).html(myData);
-            },
-            error: function (error) {
-                message = `Failed to load framework information ${error}`;
-                openModal(message);
-                fadeModal(2000);
-                return false;
-            }
-        }));
+        urls.push(`${url}`);
     });
 
-
-    // Run ajax requests
+    // Call the async function
     //
-    $.when.apply($, webRequests).then(function() {
+    webRequests(urls, 'text', processAboutFiles)
+});
 
-        fadeModal(2000);
-
-        // Build cell log
-        //
-        createLog();
+// Process about files information
+//
+function processAboutFiles(myInfo) {
+    myLogger.info("processAboutFiles");
+    myLogger.info(myInfo);
+    
+    jQuery.each(wellLogFiles, function(keyItem, keyFile) {
+        jQuery("#" + keyItem).html(myInfo.shift());
     });
 
-  });
+    // Build cell log
+    //
+    createLog();
+
+}
  
 // Create Log
 //
@@ -135,110 +133,111 @@ function createLog () {
     // Parse url
     //-------------------------------------------------
     let url = new URL(window.location.href);
+    let params = new URLSearchParams(window.location.search);
+    let origin = url.origin;
     myLogger.info(`Current Url ${window.location.href}`);
-    myLogger.info(`Current Params ${url.searchParams}`);
-    myLogger.info(`Current Params ${url.searchParams.has("longlats")}`);
-    myLogger.info(`Current Params ${url.searchParams.has("points")}`);
+    myLogger.info(`Current Params ${params}`);
     
     // Url contains all arguments
     //-------------------------------------------------
-    if(url.searchParams.has("longitude") &&
-       url.searchParams.has("latitude") &&
-       url.searchParams.has("x_coordinate") &&
-       url.searchParams.has("y_coordinate")) {
+    if(params.has("longitude") &&
+       params.has("latitude") &&
+       params.has("x_coordinate") &&
+       params.has("y_coordinate")) {
 
-        // Set selected option
-        //-------------------------------------------------
-        longitude = url.searchParams.get("longitude")
-        latitude  = url.searchParams.get("latitude")
-        x_coordinate = url.searchParams.get("x_coordinate")
-        y_coordinate = url.searchParams.get("y_coordinate")
-
-        // Request for cell log information
+        // Set
         //
-        var request_type = "GET";
-        script_http      = "/cgi-bin/columbia/framework_well_log.pl";
-        script_http      = "/cgi-bin/frameworkService/framework_cell_log.py";
-        let data_http    = "";
-        data_http   += `longitude=${longitude}`;
-        data_http   += `&latitude=${latitude}`;
-        data_http   += `&x_coordinate=${x_coordinate}`;
-        data_http   += `&y_coordinate=${y_coordinate}`;
-        data_http   += `&rasters=${rasters}`;
+        longitude = params.get("longitude")
+        latitude = params.get("latitude")
 
-        let dataType    = "json";
+        // Build ajax requests
+        //
+        let urls = [];
 
-        myLogger.info(`Request for cell log information ${script_http} ${data_http}`);
+        // Add rasters
+        //
+        params.set('rasters',`${rasters.join(" ")}`)
 
-        webRequest(request_type, script_http, data_http, dataType, BuildCellGeometry);
+        // Create a URL object
+        //
+        let script_http = `${origin}/cgi-bin/frameworkService/framework_cell_log.py`;
+        const searchParams = new URLSearchParams(params);
+        const finalUrl = `${script_http}?${searchParams.toString()}`;
+        myLogger.info(`Request for cell log information ${finalUrl}`)
+
+        // Web request
+        //
+        urls.push(`${finalUrl}`);
+
+        // Call the async function
+        //
+        webRequests(urls, 'json', BuildCellGeometry)
     }
 
   }
  
-function BuildCellGeometry(json_data)
-  { 
-   console.log("BuildCellGeometry");
-   console.log(json_data);
+function BuildCellGeometry(myJson) {
+    console.log("BuildCellGeometry");
+    console.log(myJson);
 
-   // No subsurface
-   //
-   if(json_data.status != "success") 
-     {
-      let message = json_data.message;
-      if(json_data.error) {message = json_data.error;}
-      if(json_data.warning) {message = json_data.warning;}
+    // No subsurface
+    //
+    let json_data = myJson[0]
+    
+    if(json_data.status != "success") {
+        let message = json_data.message;
+        if(json_data.error) {message = json_data.error;}
+        if(json_data.warning) {message = json_data.warning;}
 
-      openModal(message);
-      fadeModal(3000);
-      return;
-     }
+        openModal(message);
+        fadeModal(3000);
+        return;
+    }
 
-   // Check for returning warning or error
-   //
-   let message = json_data.warning;
-   if(message) 
-     {
-      openModal(message);
-      fadeModal(3000);
-      return;
-     }
+    // Check for returning warning or error
+    //
+    let message = json_data.warning;
+    if(message) {
+        openModal(message);
+        fadeModal(3000);
+        return;
+    }
 
-   // Close modal dialog
-   //
-   closeModal();
+    // Close modal dialog
+    //
+    closeModal();
 
-   // No cell records
-   //
-   if(json_data.cell_log.length <= 0)
-     {
-      let warning  = "<p><b>No cell geometry for this row " + row + " and column " + col + "</b></p>";
-      warning     += "<p><b>    All cells inactive</b></p>";
-      openModal(message);
-      return;
-     }
+    // No cell records
+    //
+    if(json_data.cell_log.length <= 0) {
+        let warning  = "<p><b>No cell geometry for this row " + row + " and column " + col + "</b></p>";
+        warning     += "<p><b>    All cells inactive</b></p>";
+        openModal(message);
+        return;
+    }
 
     // Add definitions
-      //
-      let myData = json_data.cell_log;
-      for(let i = 0; i < myData.length; i++) {
-          let myRecord = myData[i]
-          let unit = myRecord.unit
-          if(explanation[unit]) {
-              myRecord.id = unit
-              myRecord.symbol = explanation[unit].symbol
-              myRecord.color = explanation[unit].color
-              myRecord.description = explanation[unit].description
-          }
-          //myLogger.info(`Lithology ${description} Top ${top_elev} Bottom ${bot_elev} Symbol ${symbol} Color ${color}`);
-      }
-      myLogger.info(myData);
+    //
+    let myData = json_data.cell_log;
+    for(let i = 0; i < myData.length; i++) {
+        let myRecord = myData[i]
+        let unit = myRecord.unit
+        if(explanation[unit]) {
+            myRecord.id = unit
+            myRecord.symbol = explanation[unit].symbol
+            myRecord.color = explanation[unit].color
+            myRecord.description = explanation[unit].description
+        }
+        //myLogger.info(`Lithology ${description} Top ${top_elev} Bottom ${bot_elev} Symbol ${symbol} Color ${color}`);
+    }
+    myLogger.info(myData);
 
-   // Page title
-   //
-   // let title = "Subsurface Information at Longitude " + parseFloat(longitude).toFixed(6) + " Latitude " + parseFloat(latitude).toFixed(6);
-   let title = "Subsurface Information at Longitude " + parseFloat(longitude) + " Latitude " + parseFloat(latitude);
-   jQuery(document).prop("title", title);
-   jQuery("#page_title").html(title);
+    // Page title
+    //
+    // let title = "Subsurface Information at Longitude " + parseFloat(longitude).toFixed(6) + " Latitude " + parseFloat(latitude).toFixed(6);
+    let title = "Subsurface Information at Longitude " + parseFloat(longitude) + " Latitude " + parseFloat(latitude);
+    jQuery(document).prop("title", title);
+    jQuery("#page_title").html(title);
 
     // Cell log
     //
@@ -262,53 +261,47 @@ function showTooltip(name, x, y, contents)
           }).appendTo("#" + name).fadeIn(200);
   }
 
-function locationMap(latitude, longitude)
-  {
-   //console.log("locationMap " + longitude + " " + latitude);
+function locationMap(latitude, longitude) {
+    myLogger.info('locationMap');
+    myLogger.info(`latitude ${latitude} longitude ${longitude}`);
 
-   let map = L.map('locationMap').setView([latitude, longitude], 8);
-   map.scrollWheelZoom.disable();    
-
-   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
-    {
-      maxZoom: 17,
-      minZoom: 9
+    let map = L.map('locationMap').setView([latitude, longitude], 12);
+    map.scrollWheelZoom.disable();    
+    
+    myLogger.info(map.getBounds());
+    
+   L.tileLayer("https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}", {
+      maxZoom: 16,
     }).addTo(map);
 
-   let color  = "#f06c00";
-   let radius = 5;
+    // Add cell location
+    //
+    let color  = "#f06c00";
+    let radius = 5;
 
-   let circle = L.circleMarker([latitude, longitude], 
-                               { 
-                                radius: radius,
-                                color: color,
-                                fillColor: color,
-                                fillOpacity: 0.15
-   }).addTo(map);
-      
-  // Add surficalGeology to base map
-  //
-  //let imageUrl = 'grids/geotest_rgb.png';
-  let imageUrl = 'gis/geomap.tif';
-  let imageTxt = 'For Surface Geology see<a href="https://www.usgs.gov/publications/three-dimensional-model-geologic-framework-columbia-plateau-regional-aquifer-system">Burns and others (2010)</a>';
+    let circle = L.circleMarker([latitude, longitude],
+                                {
+                                    radius: radius,
+                                    color: color,
+                                    fillColor: color,
+                                    fillOpacity: 0.15
+                                }).addTo(map);
 
-  let imageBounds  = [
-      [48.4194482, -121.8449579],
-      [44.2608524, -115.3669151]
-  ];
+    // Add surficalGeology to base map
+    //
+    dummyPane = map.createPane('surficalGeology');
+    map.getPane('surficalGeology').style.pointerEvents = 'none';
+    map.getPane('surficalGeology').style.zIndex = 610;
 
-   // Surfical Geology overlay
-   //
-   let surficalGeology = L.imageOverlay(imageUrl,
-                                        imageBounds
-                                       ).addTo(map).bringToFront();        
+    var surficalGeology = L.tileLayer(surficalGeologyUrl, {
+        pane: 'surficalGeology',
+        tms: true,
+        attribution: 'USGS',
+        opacity: 0.25,
+        alt: 'surfical geology'
+    }).addTo(map);
 
-   // Set initial opacity to 0.25 (Optional)
-   //
-   let opacityValue = 0.3;
-   surficalGeology.setOpacity(opacityValue);	  
-
-  }
+}
 
 function buildExplanation(cells) {
 
