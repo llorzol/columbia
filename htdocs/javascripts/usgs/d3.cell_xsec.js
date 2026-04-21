@@ -56,7 +56,7 @@ var x_legend    = x_box_max + 100
 var y_legend    = y_box_min
 var legend_box  = 20
 
-var y_zoom_min  = y_box_max + 50;
+var y_zoom_min  = y_box_max + 100;
 var y_zoom_max  = y_zoom_min + 100;
 
 // No information
@@ -288,7 +288,8 @@ function addFramework(
     // Create the x scale
     //
     let width  = Math.abs(x_box_max - x_box_min);
-    let xScale = d3.scaleLinear().domain([x_min, x_max]).nice().range([0, width])
+    //let xScale = d3.scaleLinear().domain([x_min, x_max]).nice().range([0, width])
+    let xScale = d3.scaleLinear().domain([x_min, x_max]).range([0, width])
 
     // Create the y scale
     //
@@ -309,36 +310,26 @@ function addFramework(
     
     // Tracker line
     //
-    let trackerLine = zoomPlot.append("line")
+    let trackerLine = zoomPlot.append("g")
+        .append("line")
+        //.style("pointer-events", "none")
         .attr("id", "cursor-tracker")
         .attr("stroke-width", 2)
         .attr("stroke", "red")
-    
+
+    // Create a rect on top of the svg area: this rectangle recovers mouse position
+    //
     zoomPlot
+        .style("pointer-events", "all")
         .on('mouseenter', function(event) {
-            const [x, y] = d3.pointer(event, this);
-            myLogger.debug(`Tracking line ${x} ${y}`);
-            d3.select("#cursor-tracker")
-                .attr("x1", x)
-                .attr("y1", 0)
-                .attr("x2", x)
-                .attr("y2", height)
-                .attr("stroke-width", 2)
-                .attr("stroke", "red")
+            const [x, y] = d3.pointer(event);
             d3.selectAll(".rasterText").text('--')
-            tracker(data, xScale.invert(x));
+            mouseEvent(data, x, xScale)
         })
         .on('mousemove', function(event) {
-            const [x, y] = d3.pointer(event, this);
+            const [x, y] = d3.pointer(event);
             myLogger.debug(`Tracking line ${x} ${y}`);
-            d3.select("#cursor-tracker")
-                .attr("x1", x)
-                .attr("y1", 0)
-                .attr("x2", x)
-                .attr("y2", height)
-                .attr("stroke-width", 2)
-                .attr("stroke", "red")
-            tracker(data, xScale.invert(x));
+            mouseEvent(data, x, xScale)
         })
          .on('mouseleave', function(event) {
             d3.select("#cursor-tracker").attr('stroke-width',0)
@@ -370,8 +361,7 @@ function addFramework(
                        //
                        if (selection) {
                            let [x0, x1] = selection;
-
-                           xScale.domain([ xScale.invert(x0), xScale.invert(x1) ])
+                           let newScale = xScale.domain([ xScale.invert(x0), xScale.invert(x1) ])
                            d3.selectAll('#zoomPlot').selectAll(".bottomAxis").transition().duration(1000).call(d3.axisBottom(xScale).tickSizeOuter(0))
 
                            // Create area
@@ -385,7 +375,7 @@ function addFramework(
                            // Loop through rasters
                            //
                            for (let i = 0; i < rasterL.length; i++) {
-                               let myUnit   = rasterL[i];
+                               let myUnit = rasterL[i];
                                let myData = data[myUnit];
 
                                // Draw area
@@ -396,6 +386,22 @@ function addFramework(
                                    .attr("fill", function(d) { return colorScale(myUnit) })
                                    .attr("d", areaGen)
                            }
+
+                           zoomPlot
+                               .on('mouseenter', function(event) {
+                                   const [x, y] = d3.pointer(event);
+                                   d3.selectAll(".rasterText").text('--')
+                                   mouseEvent(data, x, newScale)
+                               })
+                               .on('mousemove', function(event) {
+                                   const [x, y] = d3.pointer(event);
+                                   myLogger.debug(`Tracking line ${x} ${y}`);
+                                   mouseEvent(data, x, newScale)
+                               })
+                               .on('mouseleave', function(event) {
+                                   d3.select("#cursor-tracker").attr('stroke-width',0)
+                                   d3.selectAll(".rasterText").text('--')
+                               })
                        }
                    })
                   );
@@ -452,10 +458,26 @@ function addFramework(
                 //
                 zoomPlot.selectAll(`#${myUnit}`)
                     .transition()
-                    .duration(1000)
+                    .duration(10)
                     .attr("fill", function(d) { return colorScale(myUnit) })
                     .attr("d", areaGen)
             }
+
+            zoomPlot
+                .on('mouseenter', function(event) {
+                    const [x, y] = d3.pointer(event);
+                    d3.selectAll(".rasterText").text('--')
+                    mouseEvent(data, x, xScale)
+                })
+                .on('mousemove', function(event) {
+                    const [x, y] = d3.pointer(event);
+                    myLogger.debug(`Tracking line ${x} ${y}`);
+                    mouseEvent(data, x, xScale)
+                })
+                .on('mouseleave', function(event) {
+                    d3.select("#cursor-tracker").attr('stroke-width',0)
+                    d3.selectAll(".rasterText").text('--')
+                })
         }
     }
 }
@@ -470,6 +492,10 @@ function drawAreas(svgElement, data, areaClass, xScale, yScale, colorScale) {
         .y0(d => yScale(d.bot))
         .y1(d => yScale(d.top))
         .defined(d => d.bot !== null); // Handle null values
+    
+    let surfaceLayers = svgElement.append("g")
+        .attr("class", "layers")
+        //.style("pointer-events", "none")
 
     // Loop through rasters
     //
@@ -479,7 +505,8 @@ function drawAreas(svgElement, data, areaClass, xScale, yScale, colorScale) {
 
         // Draw area
         //
-        svgElement.append("path")
+        surfaceLayers.append("g")
+            .append("path")
             .datum(myData)
             .attr("id", myUnit)
             .attr("class", areaClass)
@@ -488,6 +515,21 @@ function drawAreas(svgElement, data, areaClass, xScale, yScale, colorScale) {
             .attr("stroke-width", 1)
             .attr("d", areaGen)
     }
+}
+
+function mouseEvent(data, x, xScale) {
+    myLogger.info("mouseEnter");
+
+    d3.select("#cursor-tracker")
+        .transition()
+        .duration(10)
+        .attr("x1", x)
+        .attr("y1", 0)
+        .attr("x2", x)
+        .attr("y2", `${y_box_max - y_box_min}`)
+        .attr("stroke-width", 2)
+        .attr("stroke", "red")
+    tracker(data, xScale.invert(x));
 }
 
 function tracker(data, x0) {
@@ -585,17 +627,17 @@ function xsecLegend(svgContainer) {
             .attr("fill", 'black')
             .text(description)
             .call(wrap, legendWidth)
-            .on('mouseover', function(d, i) {
+            .on('mouseenter', function(d, i) {
                 let id = d3.select(this).attr('class');
-                d3.selectAll("#" + id)
+                d3.selectAll("path#" + id)
                     .transition()
                     .duration(100)
                     .attr('stroke-width', 4)
                     .attr('stroke', 'yellow')
             })
-            .on('mouseout', function(d, i) {
+            .on('mouseleave', function(d, i) {
                 let id = d3.select(this).attr('class');
-                d3.selectAll("#" + id)
+                d3.selectAll("path#" + id)
                     .transition()
                     .duration(100)
                     .attr('stroke-width', 1)
@@ -627,17 +669,17 @@ function xsecLegend(svgContainer) {
             .attr('fill', color)
             .attr('stroke', 'black')
             .attr('stroke-width', 1)
-            .on('mouseover', function(d, i) {
+            .on('mouseenter', function(d, i) {
                 let id = d3.select(this).attr('class');
-                d3.selectAll("#" + id)
+                d3.selectAll("path#" + id)
                     .transition()
                     .duration(100)
                     .attr('stroke-width', 4)
                     .attr('stroke', 'yellow')
             })
-            .on('mouseout', function(d, i) {
+            .on('mouseleave', function(d, i) {
                 let id = d3.select(this).attr('class');
-                d3.selectAll("#" + id)
+                d3.selectAll("path#" + id)
                     .transition()
                     .duration(100)
                     .attr('stroke-width', 1)
