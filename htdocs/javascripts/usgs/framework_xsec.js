@@ -43,76 +43,71 @@ let myLogger = log.getLogger('myLogger');
 //myLogger.setLevel('debug');
 myLogger.setLevel('info');
 
-var rasters      = myGeologicFramework.rasters;
-var rasterL      = myGeologicFramework.rasterL;
-var aboutFiles   = myGeologicFramework.wellLogFiles;
-var color_file   = myGeologicFramework.color_file;
-var explanation  = myGeologicFramework.explanation;
-var rasterList   = myGeologicFramework.rasterL;
-var verticalDatum = myGeologicFramework.verticalDatum;
-var horizontalDatum = myGeologicFramework.horizontalDatum;
+// Prepare global variables 
+//
+processConfigFile(myGeologicFramework)
+
+// Process project configuration information
+//
+function processConfigFile(myInfo) {
+    myLogger.info("Processing project configuration information");
+    myLogger.debug(myInfo);
+    for (let key in myInfo) {
+        globalThis[key] = myInfo[key]
+    }
+    myLogger.info(xsecFiles);
+
+    return;
+
+  }
 
 // Prepare when the DOM is ready 
 //
 $(document).ready(function() {
     // Loading message
     //
-    message = "Preparing cell log information";
+    message = "Preparing cross-section information";
     openModal(message);
 
     // Build ajax requests
     //
-    var webRequests  = [];
+    let urls = [];
 
     // Insert accordion text
     //
-    jQuery.each(aboutFiles, function(keyItem, keyFile) {
+    jQuery.each(xsecFiles, function(keyItem, keyFile) {
 
         // Request for accordion text information
         //
-        var request_type = "GET";
-        var script_http  = keyFile + "?_="+(new Date()).valueOf();
-        var data_http    = "";
-        var dataType     = "text";
+        //let Url = `${keyFile} + "?_="+(new Date()).valueOf()`
+        let url = `${keyFile}`
 
         // Web request
         //
-        webRequests.push($.ajax( {
-            method:   request_type,
-            url:      script_http,
-            data:     data_http,
-            dataType: dataType,
-            success: function (myData) {
-                message = "Processed framework information";
-                openModal(message);
-                fadeModal(2000);
-                //myLogger.info(`Help text file ${keyFile} ${myData}`);
-
-                jQuery("#" + keyItem).html(myData);
-            },
-            error: function (error) {
-                message = `Failed to load framework information ${error}`;
-                openModal(message);
-                fadeModal(2000);
-                return false;
-            }
-        }));
+        urls.push(`${url}`);
     });
 
-
-    // Run ajax requests
+    // Call the async function
     //
-    $.when.apply($, webRequests).then(function() {
-
-        fadeModal(2000);
-
-        // Build cell log
-        //
-        createXsec();
-    });
-
+    webRequests(urls, 'text', processAboutFiles)
 });
  
+// Process about files information
+//
+function processAboutFiles(myInfo) {
+    myLogger.info("processAboutFiles");
+    myLogger.info(myInfo);
+    
+    jQuery.each(xsecFiles, function(keyItem, keyFile) {
+        jQuery("#" + keyItem).html(myInfo.shift());
+    });
+
+    // Build cell log
+    //
+    createXsec();
+
+}
+
 // Create Cross-section View
 //
 function createXsec () {
@@ -122,10 +117,10 @@ function createXsec () {
     // Parse url
     //-------------------------------------------------
     let url = new URL(window.location.href);
+    let params = new URLSearchParams(window.location.search);
+    let origin = url.origin;
     myLogger.info(`Current Url ${window.location.href}`);
-    myLogger.info(`Current Params ${url.searchParams}`);
-    myLogger.info(`Current Params ${url.searchParams.has("longlats")}`);
-    myLogger.info(`Current Params ${url.searchParams.has("points")}`);
+    myLogger.info(`Current Params ${params}`);
     
     // Url contains all arguments
     //-------------------------------------------------
@@ -134,29 +129,43 @@ function createXsec () {
 
         // Set selected option
         //-------------------------------------------------
-        var longlats = url.searchParams.get("longlats")
-        var points   = url.searchParams.get("points")
+        var longlats = params.get("longlats")
+        var points   = params.get("points")
 
-        // Request for cross-section information
+        // Build ajax requests
         //
-        var request_type = "GET";
-        var script_http  = [script_http, "framework_xsec.pl?"].join("/");
-        var script_http  = '/cgi-bin/frameworkService/framework_xsec.py';
-        var data_http    = "";
-        data_http   += `longlats=${longlats}`;
-        data_http   += `&points=${points}`;
-        data_http   += `&rasters=${rasters.join(" ")}`;
+        let urls = [];
 
-        var dataType    = "json";
+        // Add rasters
+        //
+        params.set('rasters',`${rasters.join(" ")}`)
 
-        webRequest(request_type, script_http, data_http, dataType, BuildCellXsec);
+        // Create a URL object
+        //
+        let script_http = `${origin}/cgi-bin/frameworkService/framework_xsec.py`;
+        const searchParams = new URLSearchParams(params);
+        const finalUrl = `${script_http}?${searchParams.toString()}`;
+        myLogger.info(`Request for cell log information ${finalUrl}`)
+
+        // Web request
+        //
+        urls.push(`${finalUrl}`);
+
+        // Call the async function
+        //
+        webRequests(urls, 'json', BuildCellXsec)
     }
 
   }
 
-function BuildCellXsec(json_data) {
+function BuildCellXsec(myJson) {
+    console.log("BuildCellXsec");
+    console.log(myJson);
+
     // No subsurface
     //
+    let json_data = myJson[0]
+    
     if(json_data.status != "success") {
         let message = json_data.warning;
         if(!json_data.error) {message = json_data.error;}
@@ -170,14 +179,17 @@ function BuildCellXsec(json_data) {
 
     // Check for returning warning or error
     //
-    if(json_data.warning) {
-        let message = json_data.warning;
-
+    let message = json_data.warning;
+    if(message) {
         myLogger.error(message);
         openModal(message);
         fadeModal(3000);
         return;
     }
+
+    // Close modal dialog
+    //
+    closeModal();
 
     // General information
     //
