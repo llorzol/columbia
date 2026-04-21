@@ -1,6 +1,8 @@
 <!DOCTYPE html>
-<!-- version 1.02 -->
-<!-- version_date March 21, 2025 -->
+<!-- $Id: /var/www/html/columbia/framework_cell_log.html, v 1.04 2026/04/16 14:01:02 llorzol Exp $ -->
+<!-- $Revision: 1.04 $ -->
+<!-- $Date: 2026/04/16 14:01:02 $ -->
+<!-- $Author: llorzol $ -->
 <html lang="en">
   <head>
     <title></title>
@@ -17,12 +19,7 @@
     <link rel="stylesheet" type="text/css" href="css/usgs/framework.css">
     <link rel="stylesheet" type="text/css" href="css/usgs/framework_tables.css">
 
-    <link rel="stylesheet" type="text/css" href="css/usgs/modal.css">
-    <link rel="stylesheet" type="text/css" href="css/usgs/usgs.css" />
-
-    <link rel="stylesheet" type="text/css" href="css/usgs/map.css">
     <link rel="stylesheet" type="text/css" href="css/usgs/tooltip.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Merriweather">
 
   </head>
 
@@ -36,19 +33,19 @@
       <!-- Page Heading/Breadcrumbs -->
       <div class="row">
         <div class="col-sm-12">
-          <div class="clear title fs-2 mt-3 mb-3">U.S. Geological Survey</div>
-          <div class="clear title fs-2 mb-3">
-            <a class= "link-light link-underline-opacity-0" href="https://www.usgs.gov/centers/washington-water-science-center/science/columbia-plateau-groundwater-availability-study#overview">
-              <div class="clear title fs-2">A Three-Dimensional Hydrogeologic Framework Model of Columbia Plateau Regional Aquifer System</div>
+          <div class="fs-2 fw-bold text-black mt-2">U.S. Geological Survey</div>
+          <div class="mt-2">
+            <a class= "fs-2 fw-bold text-black link-underline-light" href="https://www.usgs.gov/centers/washington-water-science-center/science/columbia-plateau-groundwater-availability-study#overview">
+              <div>A Three-Dimensional Hydrogeologic Framework Model of Columbia Plateau Regional Aquifer System</div>
             </a>
           </div>
-          <div class="clear title fs-2 mb-3">Geologic Framework Mapper</div>
+          <div class="fs-4 fw-bold text-black mt-2">Geologic Framework Mapper</div>
         </div>
       </div>
       <!-- End Page Heading/Breadcrumbs -->
 
       <!-- Accordion -->
-      <div class="row mb-3">
+      <div class="row mt-2 mb-3">
         <div class="col-sm-12">
           <div class="accordion" id="accordionExample">
             <div class="accordion-item">
@@ -81,11 +78,11 @@
       </div>
 
       <!-- Nav Bar Container-->
-      <div class="row spacemetop mb-3">
+      <div class="row mb-3">
         <div class="col-sm-12">
           <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
             <div class="container-fluid">
-              <a class="navbar-brand" href="https://www.usgs.gov"><img class="xsecLogo" src="css/usgs/images/xsec.png"></a>
+              <a class="navbar-brand" href="https://www.usgs.gov"><img class="xsecLogo" src="css/usgs/images/xsec.png" style="width: 30px; height: 30px; object-fit: scale-down;"></a>
               <div class="navbar-brand me-auto"><span id="page_title"></span></div>
             </div>
           </nav>
@@ -93,13 +90,19 @@
       </div>
 
       <!-- Cell Log Container-->
-      <div class="row mb-3">
-        <div class="col-sm-3">
-          <div id="cell_log"></div>
-        </div>
-        <div class="col-sm-9">
-          <div id="cell_table" class="mb-3"></div>
-          <div id="locationMap" class="border border-black border-2 rounded-4 shadow-lg"></div>
+      <div class="container mb-3">
+        <div class="row">
+          <div class="col">
+            <div id="cell_log"></div>
+          </div>
+          <div class="col">
+            <div class="row">
+              <div id="cell_table" class="mb-3"></div>
+            </div>
+            <div class="row">
+              <div id="locationMap" class="border border-black border-2 rounded-4 shadow-lg" style="height: 300px; max-width: 300px;"></div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -108,17 +111,13 @@
     <!-- USGS Footer Template -->
     <!--#include virtual="DrupalVisID/includes/footer_WRET.html"-->
 
-    <!-- Google Tag Manager (noscript) -->
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TKQR8KP"
-                      height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-    <!-- End Google Tag Manager (noscript) -->
+      <!--[if lt IE 9]><script language="javascript" type="text/javascript" src="javascripts/excanvas.min.js"></script><![endif]-->
 
     <!-- Supporting scripts  -->
     <script src="javascripts/required/jquery.min.js"></script>
-    <script src="javascripts/required/popper.min.js"></script>
-    <script src="javascripts/required/tether.min.js"></script>
-    <script src="javascripts/required/bootstrap.min.js"></script>
+    <script src="javascripts/required/bootstrap.bundle.min.js"></script>
     <script src="javascripts/required/leaflet.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/required/leaflet.css">
 
     <!-- D3 routines -->
     <script src="javascripts/required/d3.min.js"></script>
@@ -135,7 +134,6 @@
     <script src="javascripts/usgs/webRequest.js"></script>
     <script src="javascripts/usgs/modal.js"></script>
     <script src="javascripts/usgs/map_content.js"></script>
-    <script src="javascripts/usgs/framework_tools.js"></script>
     <script src="javascripts/usgs/framework_cell_log.js"></script>
 
   </body>
