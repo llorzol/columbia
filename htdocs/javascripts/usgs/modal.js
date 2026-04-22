@@ -2,10 +2,7 @@
  *
  * Dialog is a JavaScript library to display modal windows.
  *
- $Id: /var/www/html/columbia/javascripts/usgs/modal.js, v None 2026/02/25 13:56:15 llorzol Exp $
- $Revision: None $
- $Date: 2026/02/25 13:56:15 $
- $Author: llorzol $
+ $Id: /var/www/html/columbia/javascripts/usgs/modal.js, v 2.07 2026/01/27 20:02:09 llorzol Exp $
  $Revision: 2.07 $
  $Date: 2026/01/27 20:02:09 $
  $Author: llorzol $
