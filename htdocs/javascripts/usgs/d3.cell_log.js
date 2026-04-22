@@ -4,8 +4,10 @@
  * D3_Cell_Log is a JavaScript library to provide a set of functions to build
  *  cell log column in svg format.
  *
- * version 2.09
- * March 5, 2025
+ * $Id: /var/www/html/columbia/javascripts/usgs/d3.cell_log.js, v 2.11 2026/04/22 09:47:35 llorzol Exp $
+ * $Revision: 2.11 $
+ * $Date: 2026/04/22 09:47:35 $
+ * $Author: llorzol $
 */
 
 /*
