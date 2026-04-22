@@ -4,8 +4,10 @@
  * D3_Cell_Xsec is a JavaScript library to provide a set of functions to build
  *  cross-sectional view in svg format.
  *
- * version 2.14
- * March 24, 2025
+ * $Id: /var/www/html/columbia/javascripts/usgs/d3.cell_xsec.js, v 2.16 2026/04/22 09:48:54 llorzol Exp $
+ * $Revision: 2.16 $
+ * $Date: 2026/04/22 09:48:54 $
+ * $Author: llorzol $
 */
 
 /*
@@ -690,4 +692,3 @@ function xsecLegend(svgContainer) {
         y_top += legend_box
     }
   }
-
