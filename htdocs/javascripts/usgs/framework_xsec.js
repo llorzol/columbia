@@ -4,8 +4,10 @@
  * Framework_Xsec is a JavaScript library to build a profile of columns of 
  *  framework information from the subsurface geologic layers.
  *
- * version 2.05
- * March 16, 2025
+ * $Id: /var/www/html/columbia/javascripts/usgs/framework_xsec.js, v 2.07 2026/04/22 09:39:43 llorzol Exp $
+ * $Revision: 2.07 $
+ * $Date: 2026/04/22 09:39:43 $
+ * $Author: llorzol $
 */
 
 /*
