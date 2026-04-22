@@ -7,8 +7,10 @@
  * Special layout for MERAS project (addition line in explanation table for
  *  link to correlation web page CURRENTLY DISABLED).
  *
- * version 2.13
- * March 21, 2025
+ * $Id: /var/www/html/columbia/javascripts/usgs/framework_cell_log.js, v 2.15 2026/04/22 09:38:41 llorzol Exp $
+ * $Revision: 2.15 $
+ * $Date: 2026/04/22 09:38:41 $
+ * $Author: llorzol $
 */
 
 /*
@@ -318,12 +320,12 @@ function buildExplanation(cells) {
     legend_html.push(' <caption>' + "Explanation" + '</caption>');
 
     legend_html.push(' <thead class="fw-bold text-center">');
-    legend_html.push(' <tr>');
-    legend_html.push('  <th>Top<sup>1</sup></th>');
-    legend_html.push('  <th>Bottom<sup>1</sup></th>');
-    legend_html.push('  <th>Elevation</th>');
-    legend_html.push('  <th>Thickness</th>');
-    legend_html.push('  <th>Geologic Unit</th>');
+    legend_html.push(' <tr scope="row">');
+    legend_html.push('  <th scope="col">Top<sup>1</sup></th>');
+    legend_html.push('  <th scope="col">Bottom<sup>1</sup></th>');
+    legend_html.push('  <th scope="col">Elevation</th>');
+    legend_html.push('  <th scope="col">Thickness</th>');
+    legend_html.push('  <th scope="col">Geologic Unit</th>');
     legend_html.push(' </tr>');
     legend_html.push(' </thead>');
 
@@ -351,47 +353,47 @@ function buildExplanation(cells) {
 
       // Build explanation
       //
-      legend_html.push(` <tr id="${id}" bgcolor="${color}">`);
+      legend_html.push(` <tr scope="row" id="${id}" bgcolor="${color}">`);
 
-      legend_html.push(' <td>');
+      legend_html.push(' <td scope="col">');
       legend_html.push(`  <div class="text-end"> ${Math.abs(top_depth).toFixed(0)} </div>`);
       legend_html.push(' </td>');
 
       if(bot_depth) {
-        legend_html.push(' <td>');
+        legend_html.push(' <td scope="col">');
         legend_html.push(`  <div class="text-end"> ${Math.abs(bot_depth).toFixed(0)} </div>`);
         legend_html.push(' </td>');
       }
       else {
-        legend_html.push(' <td>');
+        legend_html.push(' <td scope="col">');
         legend_html.push('  <div class="text-center">not determined</div>');
         legend_html.push(' </td>');
       }
 
-      legend_html.push(' <td>');
+      legend_html.push(' <td scope="col">');
         legend_html.push(`  <div class="text-end">${top_elev.toFixed(0)}</div>`);
       legend_html.push(' </td>');
 
       if(thickness) {
-        legend_html.push(' <td>');
+        legend_html.push(' <td scope="col">');
           legend_html.push(`  <div class="text-end">${Math.abs(thickness).toFixed(0)}</div>`);
         legend_html.push(' </td>');
       }
       else
       {
-        legend_html.push(' <td>');
+        legend_html.push(' <td scope="col">');
         legend_html.push('  <div class="text-center">not determined</div>');
         legend_html.push(' </td>');
       }
 
-      legend_html.push(' <td style="background-color:#FFFFFF">');
+      legend_html.push(' <td scope="col" style="background-color:#FFFFFF">');
         legend_html.push(`  <div id="label_${label}" class="legendLabel">${description}</div>`);
       legend_html.push(' </td>');
 
       legend_html.push(' </tr>');
     }
 
-    legend_html.push(' <tr><td class="text-start" colspan="5"><sup>1</sup>' + "Values are depth below land surface, in feet" + '</td></tr>');
+    legend_html.push(' <tr scope="row"><td class="text-start" colspan="5"><sup>1</sup>' + "Values are depth below land surface, in feet" + '</td></tr>');
     //legend_html.push(' <tr><td id="cell_bottom" colspan="5"><a href="aq_names.html">Geologic correlation</a></td></tr>');
     legend_html.push(' </tbody>');
     legend_html.push('</table>');
