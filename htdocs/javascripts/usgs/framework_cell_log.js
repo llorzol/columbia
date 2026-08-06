@@ -7,9 +7,9 @@
  * Special layout for MERAS project (addition line in explanation table for
  *  link to correlation web page CURRENTLY DISABLED).
  *
- * $Id: /var/www/html/columbia/javascripts/usgs/framework_cell_log.js, v 2.15 2026/04/22 09:38:41 llorzol Exp $
- * $Revision: 2.15 $
- * $Date: 2026/04/22 09:38:41 $
+ * $Id: /var/www/html/columbia/javascripts/usgs/framework_cell_log.js, v 2.16 2026/08/04 15:21:21 llorzol Exp $
+ * $Revision: 2.16 $
+ * $Date: 2026/08/04 15:21:21 $
  * $Author: llorzol $
 */
 
@@ -47,10 +47,6 @@ jQuery('.noJump a').click(function(event){
 let myLogger = log.getLogger('myLogger');
 //myLogger.setLevel('debug');
 myLogger.setLevel('info');
-
-// Prepare global variables 
-//
-processConfigFile(myGeologicFramework)
 
 // Process project configuration information
 //
