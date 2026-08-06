@@ -4,9 +4,9 @@
  * Main is a JavaScript library to provide a set of functions to manage
  *  the web requests.
  *
- * $Id: /var/www/html/columbia/javascripts/usgs/main.js, v 1.05 2026/04/19 16:23:14 llorzol Exp $
- * $Revision: 1.05 $
- * $Date: 2026/04/19 16:23:14 $
+ * $Id: /var/www/html/columbia/javascripts/usgs/main.js, v 1.06 2026/08/04 15:21:44 llorzol Exp $
+ * $Revision: 1.06 $
+ * $Date: 2026/08/04 15:21:44 $
  * $Author: llorzol $
 */
 
@@ -44,10 +44,6 @@ jQuery('.noJump a').click(function(event){
 let myLogger = log.getLogger('myLogger');
 //myLogger.setLevel('debug');
 myLogger.setLevel('info');
-
-// Prepare global variables 
-//
-processConfigFile(myGeologicFramework)
 
 // Prepare when the DOM is ready 
 //
