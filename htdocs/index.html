@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 
-<!-- $Id: /var/www/html/columbia/index.html, v 1.13 2026/04/19 20:12:56 llorzol Exp $ -->
-<!-- $Revision: 1.13 $ -->
-<!-- $Date: 2026/04/19 20:12:56 $ -->
+<!-- $Id: /var/www/html/columbia/index.html, v 1.14 2026/08/04 15:13:51 llorzol Exp $ -->
+<!-- $Revision: 1.14 $ -->
+<!-- $Date: 2026/08/04 15:13:51 $ -->
 <!-- $Author: llorzol $ -->
 
 <html lang="en">
@@ -182,7 +182,11 @@
     -->
     
     <!-- Definitions for Framework -->
-    <script src="data/framework_lookup.json"></script>
+    <script type="module">
+      import myJson from './data/framework_lookup.json' with { type: 'json' };
+      processConfigFile(myJson)
+    </script>
+
 
     <!-- Local scripts -->
     <script src="javascripts/usgs/webRequest.js"></script>
