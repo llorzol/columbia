@@ -1,8 +1,10 @@
 <!DOCTYPE html>
-<!-- $Id: /var/www/html/columbia/framework_cell_log.html, v 1.04 2026/04/16 14:01:02 llorzol Exp $ -->
-<!-- $Revision: 1.04 $ -->
-<!-- $Date: 2026/04/16 14:01:02 $ -->
+
+<!-- $Id: /var/www/html/columbia/framework_cell_log.html, v 1.05 2026/08/04 15:15:00 llorzol Exp $ -->
+<!-- $Revision: 1.05 $ -->
+<!-- $Date: 2026/08/04 15:15:00 $ -->
 <!-- $Author: llorzol $ -->
+
 <html lang="en">
   <head>
     <title></title>
@@ -128,7 +130,10 @@
     <script src="javascripts/required/loglevel.min.js"></script>
 
     <!-- Definitions for Framework -->
-    <script src="data/framework_lookup.json"></script>
+    <script type="module">
+      import myJson from './data/framework_lookup.json' with { type: 'json' };
+      processConfigFile(myJson)
+    </script>
 
     <!-- Oregon WSC routines -->
     <script src="javascripts/usgs/webRequest.js"></script>
