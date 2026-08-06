@@ -1,8 +1,10 @@
 <!DOCTYPE html>
-<!-- $Id: /var/www/html/columbia/framework_xsec.html, v 1.02 2026/04/16 14:01:02 llorzol Exp $ -->
-<!-- $Revision: 1.02 $ -->
-<!-- $Date: 2026/04/16 14:01:02 $ -->
+
+<!-- $Id: /var/www/html/columbia/framework_xsec.html, v 1.03 2026/08/06 12:35:27 llorzol Exp $ -->
+<!-- $Revision: 1.03 $ -->
+<!-- $Date: 2026/08/06 12:35:27 $ -->
 <!-- $Author: llorzol $ -->
+
 <html lang="en">
   <head>
     <title></title>
@@ -124,7 +126,6 @@
       <!-- Supporting scripts  -->
       <script src="javascripts/required/jquery.min.js"></script>
       <script src="javascripts/required/bootstrap.bundle.min.js"></script>
-      <script src="javascripts/required/jquery.url.js"></script>
       <script src="javascripts/required/leaflet.js"></script>
 
     <!-- D3 routines -->
@@ -136,7 +137,10 @@
     <script src="javascripts/required/loglevel.min.js"></script>
 
     <!-- Definitions for lithology and well construction -->
-    <script src="data/framework_lookup.json"></script>
+    <script type="module">
+      import myJson from './data/framework_lookup.json' with { type: 'json' };
+      processConfigFile(myJson)
+    </script>
 
     <!-- Oregon WSC routines -->
     <script type="text/javascript" src="javascripts/usgs/webRequest.js"></script>
